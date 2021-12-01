@@ -1,0 +1,5 @@
+.idea
+nimcache
+testresults
+*.iml
+tests/**/*.exe
