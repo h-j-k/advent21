@@ -9,7 +9,7 @@ type CoordinateAim = tuple[x: int, y: int, aim: int]
 
 func toInstruction(instruction: string): Instruction =
   let values = instruction.splitWhitespace
-  return (values[0], values[1].parseInt)
+  (values[0], values[1].parseInt)
 
 func mapper(c: Coordinate, instruction: Instruction): Coordinate =
   case instruction.direction:
@@ -25,8 +25,8 @@ func mapperAim(c: CoordinateAim, instruction: Instruction): CoordinateAim =
 
 func part1*(input: seq[string]): int =
   let c = input.map(toInstruction).foldl(a.mapper b, (x: 0, y: 0))
-  return c.x * c.y
+  c.x * c.y
 
 func part2*(input: seq[string]): int =
   let c = input.map(toInstruction).foldl(a.mapperAim b, (x: 0, y: 0, aim: 0))
-  return c.x * c.y
+  c.x * c.y
