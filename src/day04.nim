@@ -20,7 +20,7 @@ func bingoAndSumUnmarked(board: Board): int =
   else:
     0
 
-proc part1*(input: seq[string]): int =
+func part1*(input: seq[string]): int =
   let
     numbers = input[0].split(',').map(parseInt)
     boards: seq[Board] = input[1 ..< input.len].chunkByEmptyLines
@@ -30,7 +30,7 @@ proc part1*(input: seq[string]): int =
     let t = boards.foldl(a + b.bingoAndSumUnmarked, 0)
     if t > 0: return t * number
 
-proc part2*(input: seq[string]): int =
+func part2*(input: seq[string]): int =
   let numbers = input[0].split(',').map(parseInt)
   var boards: seq[Board] = input[1 ..< input.len].chunkByEmptyLines
         .map(b => b.map(r => r.splitWhitespace.map(c => Cell(n: c.parseInt, bingo: false))))

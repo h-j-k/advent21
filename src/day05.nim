@@ -23,20 +23,23 @@ func levelPoints(line: Line): seq[Point] =
   else:
     newSeq[Point]()
 
-func noPoints(line: Line): seq[Point] = newSeq[Point]()
-
-func diagonalPoints(line: Line): seq[Point] =
+func allPoints(line: Line): seq[Point] =
   let (m, n) = line
   return if m.x != n.x and m.y != n.y:
-    let mapper = func (p: Point): Point = (x: (if m.x < n.x: p.x + 1 else: p.x - 1), y: (if m.y < n.y: p.y + 1 else: p.y - 1))
+    let
+      xDelta = func (x: int): int =
+        if m.x < n.x: x + 1 else: x - 1
+      yDelta = func (y: int): int =
+        if m.y < n.y: y + 1 else: y - 1
+      mapper = func (p: Point): Point = (x: p.x.xDelta, y: p.y.yDelta)
     toSeq(1 .. abs(m.x - n.x)).foldl(a & a[^1].mapper, @[m])
   else:
-    newSeq[Point]()
+    line.levelPoints
 
 func process(input: seq[string], mapper: (Line) -> seq[Point]): int =
-  input.map(parse).foldl(a.concat(b.levelPoints, b.mapper), newSeq[Point]())
+  input.map(parse).foldl(a.concat b.mapper, newSeq[Point]())
       .toCountTable.pairs.toSeq.countIt(it[1] >= 2)
 
-func part1*(input: seq[string]): int = input.process noPoints
+func part1*(input: seq[string]): int = input.process levelPoints
 
-func part2*(input: seq[string]): int = input.process diagonalPoints
+func part2*(input: seq[string]): int = input.process allPoints
