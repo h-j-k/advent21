@@ -14,30 +14,29 @@ func parse(line: string): Line =
     let values = matches.map(parseInt)
     return (a: (x: values[0], y: values[1]), b: (x: values[2], y: values[3]))
 
-func pointsIfLevel(line: Line): seq[Point] =
+func levelPoints(line: Line): seq[Point] =
   let (m, n) = line
-  if m.x == n.x:
-    return toSeq(min(m.y, n.y) .. max(m.y, n.y)).map(y => (x: m.x, y: y))
+  return if m.x == n.x:
+    toSeq(min(m.y, n.y) .. max(m.y, n.y)).map(y => (x: m.x, y: y))
   elif m.y == n.y:
-    return toSeq(min(m.x, n.x) .. max(m.x, n.x)).map(x => (x: x, y: m.y))
+    toSeq(min(m.x, n.x) .. max(m.x, n.x)).map(x => (x: x, y: m.y))
   else:
-    return newSeq[Point]()
+    newSeq[Point]()
+
+func noPoints(line: Line): seq[Point] = newSeq[Point]()
+
+func diagonalPoints(line: Line): seq[Point] =
+  let (m, n) = line
+  return if m.x != n.x and m.y != n.y:
+    let mapper = func (p: Point): Point = (x: (if m.x < n.x: p.x + 1 else: p.x - 1), y: (if m.y < n.y: p.y + 1 else: p.y - 1))
+    toSeq(1 .. abs(m.x - n.x)).foldl(a & a[^1].mapper, @[m])
+  else:
+    newSeq[Point]()
 
 func process(input: seq[string], mapper: (Line) -> seq[Point]): int =
-  input.map(parse).foldl(a.concat b.mapper, newSeq[Point]())
+  input.map(parse).foldl(a.concat(b.levelPoints, b.mapper), newSeq[Point]())
       .toCountTable.pairs.toSeq.countIt(it[1] >= 2)
 
-func part1*(input: seq[string]): int = input.process pointsIfLevel
+func part1*(input: seq[string]): int = input.process noPoints
 
-func allPoints(line: Line): seq[Point] =
-  let (m, n) = line
-  if m.x == n.x:
-    return toSeq(min(m.y, n.y) .. max(m.y, n.y)).map(y => (x: m.x, y: y))
-  elif m.y == n.y:
-    return toSeq(min(m.x, n.x) .. max(m.x, n.x)).map(x => (x: x, y: m.y))
-  else:
-    let mapper = func (p: Point): Point = (x: (if m.x < n.x: p.x + 1 else: p.x - 1), y: (if m.y < n.y: p.y + 1 else: p.y - 1))
-    return toSeq(1 .. abs(m.x - n.x)).foldl(a & a[^1].mapper, @[m])
-
-
-func part2*(input: seq[string]): int = input.process allPoints
+func part2*(input: seq[string]): int = input.process diagonalPoints
