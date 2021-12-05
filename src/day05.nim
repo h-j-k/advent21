@@ -6,13 +6,13 @@ import tables
 
 type Point = tuple[x: int, y: int]
 
-type Line = tuple[a: Point, b: Point]
+type Line = tuple[m: Point, n: Point]
 
 func parse(line: string): Line =
   var matches: array[4, string]
   if line.match(re"(\d+),(\d+) -> (\d+),(\d+)", matches):
     let values = matches.map(parseInt)
-    return (a: (x: values[0], y: values[1]), b: (x: values[2], y: values[3]))
+    return (m: (x: values[0], y: values[1]), n: (x: values[2], y: values[3]))
 
 func levelPoints(line: Line): seq[Point] =
   let (m, n) = line
@@ -37,7 +37,7 @@ func allPoints(line: Line): seq[Point] =
     line.levelPoints
 
 func process(input: seq[string], mapper: (Line) -> seq[Point]): int =
-  input.map(parse).foldl(a.concat b.mapper, newSeq[Point]())
+  input.map(parse).foldl(a & b.mapper, newSeq[Point]())
       .toCountTable.pairs.toSeq.countIt(it[1] >= 2)
 
 func part1*(input: seq[string]): int = input.process levelPoints

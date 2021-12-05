@@ -16,7 +16,7 @@ func called(board: Board, number: int) =
 
 func bingoAndSumUnmarked(board: Board): int =
   if board.any(r => r.all(c => c.bingo)) or toSeq(0 ..< board.len).any(c => board.all(r => r[c].bingo)):
-    board.foldl(a.concat b).foldl(a + (if b.bingo: 0 else: b.n), 0)
+    board.foldl(a & b).foldl(a + (if b.bingo: 0 else: b.n), 0)
   else:
     0
 
