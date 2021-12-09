@@ -31,11 +31,11 @@ func part1*(input: seq[string]): int =
 func expand(p: Point, mapping: seq[seq[int]]): int =
   var
     deque = [p].toDeque
-    seen = initOrderedSet[Point]()
+    seen = initHashSet[Point]()
   while deque.len > 0:
-    let current = deque.popFirst
-    if not seen.containsOrIncl(current):
-      for a in current.adjacents(mapping.len, mapping[0].len).filter(v => mapping[v] != 9):
+    let p = deque.popFirst
+    if not seen.containsOrIncl(p):
+      for a in p.adjacents(mapping.len, mapping[0].len).filter(a => mapping[a] != 9):
         deque.addLast(a)
   seen.len
 
