@@ -28,17 +28,14 @@ func part1*(input: seq[string]): int =
   let (lowPoints, mapping) = input.process
   lowPoints.foldl(a + mapping[b] + 1, 0)
 
-func expand(p: Point, mapping: seq[seq[int]]): int =
-  var
-    deque = [p].toDeque
-    seen = initHashSet[Point]()
+func mapBasin(p: Point, mapping: seq[seq[int]]): HashSet[Point] =
+  var deque = [p].toDeque
   while deque.len > 0:
     let p = deque.popFirst
-    if not seen.containsOrIncl(p):
+    if not result.containsOrIncl(p):
       for a in p.adjacents(mapping.len, mapping[0].len).filter(a => mapping[a] != 9):
         deque.addLast(a)
-  seen.len
 
 func part2*(input: seq[string]): int =
   let (lowPoints, mapping) = input.process
-  lowPoints.mapIt(it.expand mapping).sorted[^3 .. ^1].foldl(a * b, 1)
+  lowPoints.mapIt(it.mapBasin(mapping).len).sorted[^3 .. ^1].foldl(a * b, 1)
