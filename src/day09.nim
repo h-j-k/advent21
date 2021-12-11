@@ -1,41 +1,24 @@
+import adventutils
 import algorithm
 import sequtils
 import std/[deques, sets]
 import strutils
 import sugar
 
-type Point = tuple[x: int, y: int]
-
-func `[]`(mapping: seq[seq[int]], p: Point): int = mapping[p.y][p.x]
-
-func adjacents(p: Point, height: int, width: int): seq[Point] = collect:
-  for d in [(x: -1, y: 0), (x: 1, y: 0), (x: 0, y: -1), (x: 0, y: 1)]:
-    if d.x + p.x in 0 ..< width and d.y + p.y in 0 ..< height: (x: d.x + p.x, y: d.y + p.y)
-
-func process(input: seq[string]): (seq[Point], seq[seq[int]]) =
-  let
-    height = input.len
-    width = input[0].len
-    mapping = input.map(line => line.items.toSeq.mapIt(parseInt($it)))
-  var lowPoints = newSeq[Point]()
-  for y in 0 ..< height:
-    for x in 0 ..< width:
+func lowPoints(grid: IntGrid): seq[Point] =
+  for y in 0 ..< grid.len:
+    for x in 0 ..< grid[0].len:
       let p = (x, y)
-      if p.adjacents(height, width).all(a => mapping[a] > mapping[p]): lowPoints.add(p)
-  (lowPoints, mapping)
+      if p.adjacents(grid, false).all(a => grid[a] > grid[p]): result.add(p)
 
-func part1*(input: seq[string]): int =
-  let (lowPoints, mapping) = input.process
-  lowPoints.foldl(a + mapping[b] + 1, 0)
+func part1*(input: IntGrid): int = input.lowPoints.foldl(a + input[b] + 1, 0)
 
-func mapBasin(p: Point, mapping: seq[seq[int]]): HashSet[Point] =
+func mapBasin(p: Point, grid: IntGrid): HashSet[Point] =
   var deque = [p].toDeque
   while deque.len > 0:
     let p = deque.popFirst
     if not result.containsOrIncl(p):
-      for a in p.adjacents(mapping.len, mapping[0].len).filter(a => mapping[a] != 9):
-        deque.addLast(a)
+      for a in p.adjacents(grid, false).filter(a => grid[a] != 9): deque.addLast(a)
 
-func part2*(input: seq[string]): int =
-  let (lowPoints, mapping) = input.process
-  lowPoints.mapIt(it.mapBasin(mapping).len).sorted[^3 .. ^1].foldl(a * b, 1)
+func part2*(input: IntGrid): int =
+  input.lowPoints.mapIt(it.mapBasin(input).len).sorted[^3 .. ^1].foldl(a * b, 1)

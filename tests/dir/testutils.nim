@@ -1,7 +1,11 @@
+import ../../src/adventutils
 import sequtils
 import strutils
+import sugar
 
 proc readStringLines*(path: string): seq[string] = path.readFile.splitLines
+
+proc readIntGrid*(path: string): IntGrid = path.readStringLines.map(line => line.items.toSeq.mapIt(parseInt($it)))
 
 proc readIntLines*(path: string): seq[int] = path.readStringLines.map(parseInt)
 
