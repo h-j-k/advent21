@@ -26,10 +26,7 @@ func process(input: (IntGrid, int)): (IntGrid, int) =
 func part1*(input: IntGrid): int = toSeq(1 .. 100).foldl(a.process, (input, 0))[1]
 
 func part2*(input: IntGrid): int =
-  var
-    target = 0
-    current = input
-  while true:
-    target.inc
+  var current = input
+  while current.foldl(a & b, newSeq[int]()).toHashSet.len != 1:
+    result.inc
     current = (current, 0).process[0]
-    if current.foldl(a & b).toHashSet.len == 1: return target
