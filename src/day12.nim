@@ -4,7 +4,7 @@ import strutils
 import sugar
 import tables
 
-func isBigCave(name: string): bool = name.items.toSeq.allIt(it.isUpperAscii)
+func isBigCave(name: string): bool = name.items.toSeq.foldl(a and b.isUpperAscii, true)
 
 func toMap(input: seq[string]): Table[string, HashSet[string]] =
   for line in input:
@@ -25,4 +25,4 @@ func process(input: seq[string], extraTest: (CountTable[string]) -> bool): int =
 
 func part1*(input: seq[string]): int = input.process(nextSeen => false)
 
-func part2*(input: seq[string]): int = input.process(nextSeen => nextSeen.values.toSeq.allIt(it == 1))
+func part2*(input: seq[string]): int = input.process(nextSeen => nextSeen.values.toSeq.foldl(a and b == 1, true))
