@@ -1,5 +1,5 @@
 import sequtils
-import std/[deques, sets]
+import std/deques
 import strutils
 import sugar
 import tables
@@ -9,8 +9,8 @@ func isBigCave(name: string): bool = name.items.toSeq.foldl(a and b.isUpperAscii
 func toMap(input: seq[string]): Table[string, seq[string]] =
   for line in input:
     let (x, y) = (line.split("-")[0], line.split("-")[1])
-    if y != "start": result.mgetOrPut(x, newSeq[string]()).add(y)
-    if x != "start": result.mgetOrPut(y, newSeq[string]()).add(x)
+    if y != "start": result.mgetOrPut(x, @[]).add(y)
+    if x != "start": result.mgetOrPut(y, @[]).add(x)
 
 func explore(caves: Table[string, seq[string]], revisits: int, last = "start", lastSeen = initCountTable[string]()): int =
   if last == "end": 1 else:
