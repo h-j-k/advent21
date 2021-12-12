@@ -14,15 +14,14 @@ func toMap(input: seq[string]): Table[string, HashSet[string]] =
 
 func process(input: seq[string], extraTest: (CountTable[string]) -> bool): int =
   let caves = input.toMap
-  var deque = [("start", newSeq[string](), initCountTable[string]())].toDeque
+  var deque = [("start", initCountTable[string]())].toDeque
   while deque.len > 0:
-    let (current, path, seen) = deque.popFirst
-    if current == "end": result.inc else:
-      var nextSeen = seen
-      if not current.isBigCave: nextSeen.inc(current)
-      for next in caves[current].toSeq.filter(v => v.isBigCave or v notin nextSeen or nextSeen.extraTest):
-        deque.addLast((next, path & current, nextSeen))
+    let (last, lastSeen) = deque.popFirst
+    if last == "end": result.inc else:
+      var seen = lastSeen
+      if not last.isBigCave: seen.inc(last)
+      for c in caves[last].toSeq.filter(v => v.isBigCave or v notin seen or seen.extraTest): deque.addLast((c, seen))
 
-func part1*(input: seq[string]): int = input.process(nextSeen => false)
+func part1*(input: seq[string]): int = input.process(seen => false)
 
-func part2*(input: seq[string]): int = input.process(nextSeen => nextSeen.values.toSeq.foldl(a and b == 1, true))
+func part2*(input: seq[string]): int = input.process(seen => seen.values.toSeq.foldl(a + b, 0) == seen.len)
