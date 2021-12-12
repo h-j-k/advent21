@@ -12,11 +12,11 @@ func process(input: (IntGrid, int)): (IntGrid, int) =
     newValues: Table[Point, int] = collect:
       for y in 0 ..< grid.len:
         for x in 0 ..< grid[0].len: {(x, y): grid[(x, y)] + 1}
-  while newValues.pairs.toSeq.anyIt(it[1] > 9):
+  while newValues.values.toSeq.anyIt(it > 9):
     for k in newValues.keys.toSeq.filter(p => newValues[p] > 9):
       flashed.inc
       newValues[k] = 0
-      for p in k.adjacents(grid, true).filter(a => newValues[a] > 0): newValues[p] += 1
+      for a in k.adjacents(grid, true).filter(p => newValues[p] > 0): newValues[a] += 1
   (grid + newValues, input[1] + flashed)
 
 func part1*(input: IntGrid): int = toSeq(1 .. 100).foldl(a.process, (input, 0))[1]
