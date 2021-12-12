@@ -1,10 +1,9 @@
+import adventutils
 import re
 import sequtils
 import strutils
 import sugar
 import tables
-
-type Point = tuple[x: int, y: int]
 
 type Line = tuple[m: Point, n: Point]
 

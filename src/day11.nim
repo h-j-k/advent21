@@ -17,11 +17,7 @@ func process(input: (IntGrid, int)): (IntGrid, int) =
       flashed.inc
       newValues[k] = 0
       for p in k.adjacents(grid, true).filter(a => newValues[a] > 0): newValues[p] += 1
-  let newGrid = toSeq(0 ..< grid.len).foldl(
-    a & newValues.pairs.toSeq.filterIt(it[0].y == b).sortedByIt(it[0].x).mapIt(it[1]),
-    newSeq[seq[int]]()
-  )
-  (newGrid, input[1] + flashed)
+  (grid + newValues, input[1] + flashed)
 
 func part1*(input: IntGrid): int = toSeq(1 .. 100).foldl(a.process, (input, 0))[1]
 

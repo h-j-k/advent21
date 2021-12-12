@@ -5,11 +5,11 @@ import std/[deques, sets]
 import strutils
 import sugar
 
-func lowPoints(grid: IntGrid): seq[Point] =
+func lowPoints(grid: IntGrid): seq[Point] = collect:
   for y in 0 ..< grid.len:
     for x in 0 ..< grid[0].len:
       let p = (x, y)
-      if p.adjacents(grid, false).all(a => grid[a] > grid[p]): result.add(p)
+      if p.adjacents(grid, false).all(a => grid[a] > grid[p]): p
 
 func part1*(input: IntGrid): int = input.lowPoints.foldl(a + input[b] + 1, 0)
 

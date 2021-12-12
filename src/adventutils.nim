@@ -16,8 +16,13 @@ func adjacents*(p: Point, grid: IntGrid, hasCorners: bool): seq[Point] = collect
       let p = (x: dx + p.x, y: dy + p.y)
       if p in grid and (dx, dy) != (0, 0) and (hasCorners or (dx * dy == 0)): p
 
+func `+`*(grid: IntGrid, newValues: Table[Point, int]): IntGrid =
+  result = grid
+  for k, v in newValues:
+    if k in grid: result[k.y][k.x] = v
+
 func chunkByEmptyLines*(input: seq[string]): seq[seq[string]] =
-  let chunks = input.count("") + (if input[0] == "": 0 else: 1)
+  let chunks = input.count("")
   input.distribute(chunks, false).map(c => c[1 ..< c.len])
 
 func flip*(values: seq[string]): seq[string] = toSeq(0 ..< values[0].len).mapIt(values.foldl(a & b[it], ""))
