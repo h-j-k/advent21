@@ -1,10 +1,7 @@
 import sequtils
-import std/deques
 import strutils
 import sugar
 import tables
-
-func isBigCave(name: string): bool = name.items.toSeq.foldl(a and b.isUpperAscii, true)
 
 func toMap(input: seq[string]): Table[string, seq[string]] =
   for line in input:
@@ -15,8 +12,8 @@ func toMap(input: seq[string]): Table[string, seq[string]] =
 func explore(caves: Table[string, seq[string]], revisits: int, last = "start", lastSeen = initCountTable[string]()): int =
   if last == "end": 1 else:
     var seen = lastSeen
-    if not last.isBigCave: seen.inc(last)
-    caves[last].filter(v => v.isBigCave or v notin seen or revisits > 0)
+    if last[0].isLowerAscii: seen.inc(last)
+    caves[last].filter(v => v[0].isUpperAscii or v notin seen or revisits > 0)
       .foldl(a + caves.explore((if b in seen: revisits - 1 else: revisits), b, seen), 0)
 
 func part1*(input: seq[string]): int = input.toMap.explore 0
