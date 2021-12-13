@@ -23,7 +23,7 @@ func bingoAndSumUnmarked(board: Board): int =
 func part1*(input: seq[string]): int =
   let
     numbers = input[0].split(',').map(parseInt)
-    boards: seq[Board] = input[1 ..< input.len].chunkByEmptyLines
+    boards: seq[Board] = input[1 ..< input.len].splitByEmptyLines
       .map(b => b.map(r => r.splitWhitespace.map(c => Cell(n: c.parseInt, bingo: false))))
   for number in numbers:
     for board in boards: board.called number
@@ -32,7 +32,7 @@ func part1*(input: seq[string]): int =
 
 func part2*(input: seq[string]): int =
   let numbers = input[0].split(',').map(parseInt)
-  var boards: seq[Board] = input[1 ..< input.len].chunkByEmptyLines
+  var boards: seq[Board] = input[1 ..< input.len].splitByEmptyLines
         .map(b => b.map(r => r.splitWhitespace.map(c => Cell(n: c.parseInt, bingo: false))))
   for number in numbers:
     for board in boards: board.called number

@@ -22,10 +22,14 @@ grid[(2, 2)].assertEquals 9
 (grid + {(2, 2): 0}.toTable).assertEquals @[@[1, 2, 3], @[4, 5, 6], @[7, 8, 0]]
 (grid + {(3, 3): -1}.toTable).assertEquals @[@[1, 2, 3], @[4, 5, 6], @[7, 8, 9]]
 
-@["", "A", "", "B"].chunkByEmptyLines.assertEquals @[@["A"], @["B"]]
-
 @["12", "34"].flip.assertEquals @["13", "24"]
 
 {'k': 'v'}.toTable.keyFor('v').assertEquals('k')
+
+@["this", "is", "some", "", "text"].splitByEmptyLines.assertEquals @[@["this", "is", "some"], @["text"]]
+
+@["this", "", "is", "some", "text"].splitByEmptyLines.assertEquals @[@["this"], @["is", "some", "text"]]
+
+@["", "this is", "", "", "some text", ""].splitByEmptyLines.assertEquals @[@["this is"], @["some text"]]
 
 @['a', 'b'].withIndex.assertEquals @[(0, 'a'), (1, 'b')]

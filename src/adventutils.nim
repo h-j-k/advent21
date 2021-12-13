@@ -21,14 +21,16 @@ func `+`*(grid: IntGrid, newValues: Table[Point, int]): IntGrid =
   for k, v in newValues:
     if k in grid: result[k.y][k.x] = v
 
-func chunkByEmptyLines*(input: seq[string]): seq[seq[string]] =
-  let chunks = input.count("")
-  input.distribute(chunks, false).map(c => c[1 ..< c.len])
-
 func flip*(values: seq[string]): seq[string] = toSeq(0 ..< values[0].len).mapIt(values.foldl(a & b[it], ""))
 
 func keyFor*[K, V](lookup: Table[K, V], value: V): K =
   for k, v in lookup:
     if v == value: return k
+
+func splitByEmptyLines*(input: seq[string]): seq[seq[string]] =
+  result.add(@[])
+  for line in input:
+    if line == "": result.add(@[]) else: result[^1].add(line)
+  result.keepItIf(it.len > 0)
 
 func withIndex*[T](values: seq[T]): seq[(int, T)] = toSeq(0 ..< values.len).zip values
