@@ -10,9 +10,8 @@ func process(input: seq[string], times: int): int64 =
   let
     polymer = input[0]
     rules = input[2 ..< input.len].mapIt(it.scanTuple "$w -> $c").mapIt((it[1], it[2])).toTable
-    counts = newCountTable[char]()
-  var pairs = (1 .. times).foldl(a.process rules, polymer.zip(polymer[1 .. ^1]).mapIt(it[0] & it[1]).toCountTable)
-  pairs.inc(polymer[0] & polymer[^1])
+    pairs = (1 .. times).foldl(a.process rules, polymer.zip(polymer[1 .. ^1]).mapIt(it[0] & it[1]).toCountTable)
+    counts = (polymer[0] & polymer[^1]).newCountTable
   for k, v in pairs: (for c in k.items: counts.inc(c, v))
   let (min, max) = counts.values.toSeq.foldl((min(a[0], b), max(a[1], b)), (int64.high, int64.low))
   (max - min) div 2
