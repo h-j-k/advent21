@@ -10,8 +10,7 @@ func process(input: (IntGrid, int)): (IntGrid, int) =
   var
     flashed = 0
     newValues: Table[Point, int] = collect:
-      for y in 0 ..< grid.len:
-        for x in 0 ..< grid[0].len: {(x, y): grid[(x, y)] + 1}
+      for y in 0 ..< grid.len: (for x in 0 ..< grid[0].len: {(x, y): grid[(x, y)] + 1})
   while newValues.values.toSeq.anyIt(it > 9):
     for k in newValues.keys.toSeq.filter(p => newValues[p] > 9):
       flashed.inc
@@ -19,7 +18,7 @@ func process(input: (IntGrid, int)): (IntGrid, int) =
       for a in k.adjacents(grid, true).filter(p => newValues[p] > 0): newValues[a] += 1
   (grid + newValues, input[1] + flashed)
 
-func part1*(input: IntGrid): int = toSeq(1 .. 100).foldl(a.process, (input, 0))[1]
+func part1*(input: IntGrid): int = (1 .. 100).foldl(a.process, (input, 0))[1]
 
 func part2*(input: IntGrid): int =
   var current = input

@@ -21,7 +21,7 @@ func `+`*(grid: IntGrid, newValues: Table[Point, int]): IntGrid =
   for k, v in newValues:
     if k in grid: result[k.y][k.x] = v
 
-func flip*(values: seq[string]): seq[string] = toSeq(0 ..< values[0].len).mapIt(values.foldl(a & b[it], ""))
+func flip*(values: seq[string]): seq[string] = (0 ..< values[0].len).mapIt(values.foldl(a & b[it], ""))
 
 func keyFor*[K, V](lookup: Table[K, V], value: V): K =
   for k, v in lookup:

@@ -28,4 +28,4 @@ func part2*(input: seq[string]): seq[string] =
   let
     output = input.process[^1]
     max = output.foldl((x: max(a.x, b.x), y: max(a.y, b.y)), (x: 0, y: 0))
-  toSeq(0 .. max.y).mapIt(toSeq(0 .. max.x).foldl(a & (if (b, it) in output: "8" else: " "), ""))
+  (0 .. max.y).mapIt((0 .. max.x).foldl(a & (if (b, it) in output: "8" else: " "), ""))
