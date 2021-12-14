@@ -4,7 +4,7 @@ import tables
 
 func process(polymer: CountTable[string], rules: Table[string, char]): CountTable[string] =
   for k, v in polymer:
-    if k in rules: (for p in [k[0] & rules[k], rules[k] & k[1]]: result.inc(p, v)) else: result.inc(k, v)
+    for p in (if k in rules: @[k[0] & rules[k], rules[k] & k[1]] else: @[k]): result.inc(p, v)
 
 func process(input: seq[string], times: int): int64 =
   let
