@@ -1,6 +1,5 @@
 import sequtils
 import strutils
-import sugar
 
 type
   Packet = ref object of RootObj
@@ -17,20 +16,20 @@ type
 
 type ReadMode = enum Header, Literal, Operator
 
-func process(parsed: string, isSingleRead = false): (seq[Packet], int) =
+func process(parsed: string): (Packet, int) =
   var
     i = 0
-    packets = newSeq[Packet]()
+    packet: Packet
     reads = @[ReadMode.Header]
-  while (not(isSingleRead) or reads.len <= 2) and i < parsed.len:
-    if fromBin[int](parsed[i ..< parsed.len]) == 0: return (packets, i)
+  while i < parsed.len:
+    if fromBin[int](parsed[i ..< parsed.len]) == 0: return (packet, i)
     case reads[^1]:
       of ReadMode.Header:
         let
           versionId = fromBin[int](parsed[i ..< i + 3])
           typeId = fromBin[int](parsed[i + 3 ..< i + 6])
         if typeId == 4:
-          packets.add LiteralPacket(versionId: versionId, typeId: typeId)
+          packet = LiteralPacket(versionId: versionId, typeId: typeId)
           i += 6
           reads.add ReadMode.Literal
         else:
@@ -38,7 +37,7 @@ func process(parsed: string, isSingleRead = false): (seq[Packet], int) =
             lengthType = fromBin[int](parsed[i + 6 ..< i + 7])
             offset = if lengthType == 0: 15 else: 11
             length = fromBin[int](parsed[i + 7 ..< i + 7 + offset])
-          packets.add OperatorPacket(versionId: versionId, typeId: typeId, lengthType: lengthType, length: length)
+          packet = OperatorPacket(versionId: versionId, typeId: typeId, lengthType: lengthType, length: length)
           i += 7 + offset
           reads.add ReadMode.Operator
       of ReadMode.Literal:
@@ -47,31 +46,47 @@ func process(parsed: string, isSingleRead = false): (seq[Packet], int) =
           rawData.add parsed[i ..< i + 5]
           i += 5
         rawData.add parsed[i ..< i + 5]
-        i += 5
-        LiteralPacket(packets[^1]).data = fromBin[int64](rawData.foldl(a & b[1 ..< b.len], ""))
-        reads.add ReadMode.Header
+        LiteralPacket(packet).data = fromBin[int](rawData.foldl(a & b[1 ..< b.len], ""))
+        return (packet, i + 5)
       of ReadMode.Operator:
-        let operatorPacket = OperatorPacket(packets[^1])
+        let operatorPacket = OperatorPacket(packet)
         if operatorPacket.lengthType == 0:
           var leftover = operatorPacket.length
           while leftover > 0:
-            let (packets, offset) = process(parsed[i ..< parsed.len], true)
-            operatorPacket.subs.add packets[0]
+            let (packet, offset) = process(parsed[i ..< parsed.len])
+            operatorPacket.subs.add packet
             leftover -= offset
             i += offset
         else:
           for _ in 1 .. operatorPacket.length:
-            let (packets, offset) = process(parsed[i ..< parsed.len], true)
-            operatorPacket.subs.add packets[0]
+            let (packet, offset) = process(parsed[i ..< parsed.len])
+            operatorPacket.subs.add packet
             i += offset
-        reads.add ReadMode.Header
-  (packets, i)
+        return (packet, i)
+  (packet, i)
+
+func parse(input: string): Packet = input.items.toSeq.foldl(a & fromHex[int]($b).toBin(4), "").process[0]
 
 func sumVersions(packet: Packet): int =
   return if packet of LiteralPacket: LiteralPacket(packet).versionId
     elif packet of OperatorPacket: OperatorPacket(packet).subs.foldl(a + b.sumVersions, packet.versionId)
     else: 0
 
-func part1*(input: string): int =
-  let (packets, offset) = input.items.toSeq.foldl(a & fromHex[int]($b).toBin(4), "").process
-  packets[0].sumVersions
+func part1*(input: string): int = input.parse.sumVersions
+
+func eval(packet: Packet): int64 =
+  return if packet of LiteralPacket: LiteralPacket(packet).data
+      elif packet of OperatorPacket:
+        let op = OperatorPacket(packet)
+        case op.typeId:
+          of 0: op.subs.foldl(a + b.eval, 0'i64)
+          of 1: op.subs.foldl(a * b.eval, 1'i64)
+          of 2: op.subs.foldl(a.min b.eval, int64.high)
+          of 3: op.subs.foldl(a.max b.eval, int64.low)
+          of 5: (if op.subs[0].eval > op.subs[1].eval: 1 else: 0)
+          of 6: (if op.subs[0].eval < op.subs[1].eval: 1 else: 0)
+          of 7: (if op.subs[0].eval == op.subs[1].eval: 1 else: 0)
+          else: 0
+      else: 0
+
+func part2*(input: string): int64 = input.parse.eval
