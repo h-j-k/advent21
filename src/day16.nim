@@ -11,16 +11,14 @@ type
 
 type
   Operator = ref object of Packet
-    lengthType, length: int
     subs: seq[Packet]
 
 func process(parsed: string): (Packet, int) =
-  var i = 0
   let
-    version = fromBin[int](parsed[i ..< i + 3])
-    typeId = fromBin[int](parsed[i + 3 ..< i + 6])
+    version = fromBin[int](parsed[0 ..< 3])
+    typeId = fromBin[int](parsed[3 ..< 6])
   if typeId == 4:
-    i += 6
+    var i = 6
     var rawData = newSeq[string]()
     while parsed[i] != '0':
       rawData.add parsed[i ..< i + 5]
@@ -30,23 +28,16 @@ func process(parsed: string): (Packet, int) =
     return (literal, i + 5)
   else:
     let
-      lengthType = fromBin[int](parsed[i + 6 ..< i + 7])
-      offset = if lengthType == 0: 15 else: 11
-      length = fromBin[int](parsed[i + 7 ..< i + 7 + offset])
-      operator = Operator(version: version, typeId: typeId, lengthType: lengthType, length: length)
-    i += 7 + offset
-    if lengthType == 0:
-      var leftover = length
-      while leftover > 0:
-        let (packet, offset) = parsed[i ..< parsed.len].process
-        leftover -= offset
-        operator.subs.add packet
-        i += offset
-    else:
-      for _ in 1 .. length:
-        let (packet, offset) = parsed[i ..< parsed.len].process
-        operator.subs.add packet
-        i += offset
+      operator = Operator(version: version, typeId: typeId)
+      lengthType = fromBin[int](parsed[6 ..< 7])
+    var
+      i = 7 + (if lengthType == 0: 15 else: 11)
+      leftover = fromBin[int](parsed[7 ..< i])
+    while leftover > 0:
+      let (packet, offset) = parsed[i ..< parsed.len].process
+      operator.subs.add packet
+      i += offset
+      leftover -= (if lengthType == 0: offset else: 1)
     return (operator, i)
 
 func parse(input: string): Packet = input.items.toSeq.foldl(a & fromHex[int]($b).toBin(4), "").process[0]
