@@ -14,26 +14,22 @@ type
 
 func sf(n: int): Literal = Literal(n: n)
 
-func `+`(a: Literal, b: int): Literal = Literal(n: a.n + b)
-
 func magnitude(sf: SfNumber): int =
-  if (sf of Literal): Literal(sf).n
-  else: 3 * sf.a.magnitude + 2 * sf.b.magnitude
+  if (sf of Literal): Literal(sf).n else: 3 * sf.a.magnitude + 2 * sf.b.magnitude
 
-func `$`*(sf: SfNumber): string =
-  if (sf of Literal): $(Literal(sf).n)
-  else: "[" & $sf.a & "," & $sf.b & "]"
+func `$`(sf: SfNumber): string =
+  if (sf of Literal): $(Literal(sf).n) else: "[" & $sf.a & "," & $sf.b & "]"
 
-func explode*(sf: SfNumber, level = 1): Option[(int, int)] =
+func explode(sf: SfNumber, level = 1): Option[(int, int)] =
   if sf of Literal: return none[(int, int)]()
   if level > 4 and sf.a of Literal and sf.b of Literal:
     return some((Literal(sf.a).n, Literal(sf.b).n))
   var
-    x = explode(sf.a, level + 1)
+    x = sf.a.explode level + 1
     xA, xB: int
     isASide = true
   if x.isNone:
-    x = explode(sf.b, level + 1)
+    x = sf.b.explode level + 1
     isASide = false
   if x.isNone: return x
   (xA, xB) = x.get
@@ -73,27 +69,21 @@ func split(sf: SfNumber): bool =
     else: r = split(sf.b)
   r
 
-proc reduce*(sf: SfNumber): void =
-  while (sf.explode.isSome or sf.split): discard
+proc reduce*(sf: SfNumber): void = (while (sf.explode.isSome or sf.split): discard)
 
 func `+`(a: SfNumber, b: SfNumber): SfNumber =
-  let r = SfNumber(a: a, b: b)
-  r.reduce
-  r
+  result = SfNumber(a: a, b: b)
+  result.reduce
 
 func parse*(input: string): (SfNumber, int) =
-  if input[0] == '[':
+  if input =~ re"^(\d+)":
+    let literal = Literal(n: matches[0].parseInt)
+    return (literal, matches[0].len)
+  else:
     let
       (a, aOffset) = parse(input[1 .. ^1])
       (b, bOffset) = parse(input[aOffset + 2.. ^1])
     return (SfNumber(a: a, b: b), aOffset + bOffset + 3)
-  elif input =~ re"^(\d+)":
-    let literal = Literal(n: matches[0].parseInt)
-    return (literal, matches[0].len)
-  discard
-
-func combine*(input: seq[string]): string =
-  input[1 .. ^1].foldl("[" & a & "," & b & "]", input[0])
 
 func part1*(input: seq[string]): int =
   let r = input[1 .. ^1].foldl(a + b.parse[0], input[0].parse[0])
