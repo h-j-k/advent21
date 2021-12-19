@@ -55,27 +55,26 @@ func splitLiteral(literal: Literal): Option[SfNumber] =
 
 func split(sf: SfNumber): bool =
   if sf of Literal: return false
-  var r = false
+  result = false
   if sf.a of Literal:
     let aSplit = Literal(sf.a).splitLiteral
-    r = aSplit.isSome
-    if r: sf.a = aSplit.get
-  else: r = split(sf.a)
-  if not r:
+    result = aSplit.isSome
+    if result: sf.a = aSplit.get
+  else: result = split(sf.a)
+  if not result:
     if sf.b of Literal:
       let bSplit = Literal(sf.b).splitLiteral
-      r = bSplit.isSome
-      if r: sf.b = bSplit.get
-    else: r = split(sf.b)
-  r
+      result = bSplit.isSome
+      if result: sf.b = bSplit.get
+    else: result = split(sf.b)
 
-proc reduce*(sf: SfNumber): void = (while (sf.explode.isSome or sf.split): discard)
+func reduce(sf: SfNumber): void = (while (sf.explode.isSome or sf.split): discard)
 
 func `+`(a: SfNumber, b: SfNumber): SfNumber =
   result = SfNumber(a: a, b: b)
   result.reduce
 
-func parse*(input: string): (SfNumber, int) =
+func parse(input: string): (SfNumber, int) =
   if input =~ re"^(\d+)":
     let literal = Literal(n: matches[0].parseInt)
     return (literal, matches[0].len)
@@ -88,4 +87,10 @@ func parse*(input: string): (SfNumber, int) =
 func part1*(input: seq[string]): int =
   let r = input[1 .. ^1].foldl(a + b.parse[0], input[0].parse[0])
   r.reduce
-  return r.magnitude
+  r.magnitude
+
+func part2*(input: seq[string]): int =
+  result = int.low
+  for (i, n) in input[0 .. ^2].pairs:
+    result =
+      input[i + 1 .. ^1].foldl(max([a, (n.parse[0] + b.parse[0]).magnitude, (b.parse[0] + n.parse[0]).magnitude]), result)
