@@ -17,9 +17,6 @@ func sf(n: int): Literal = Literal(n: n)
 func magnitude(sf: SfNumber): int =
   if (sf of Literal): Literal(sf).n else: 3 * sf.a.magnitude + 2 * sf.b.magnitude
 
-func `$`(sf: SfNumber): string =
-  if (sf of Literal): $(Literal(sf).n) else: "[" & $sf.a & "," & $sf.b & "]"
-
 func explode(sf: SfNumber, level = 1): Option[(int, int)] =
   if sf of Literal: return none[(int, int)]()
   if level > 4 and sf.a of Literal and sf.b of Literal:
@@ -84,13 +81,14 @@ func parse(input: string): (SfNumber, int) =
       (b, bOffset) = parse(input[aOffset + 2.. ^1])
     return (SfNumber(a: a, b: b), aOffset + bOffset + 3)
 
+func sf(number: string): SfNumber = number.parse[0]
+
 func part1*(input: seq[string]): int =
-  let r = input[1 .. ^1].foldl(a + b.parse[0], input[0].parse[0])
+  let r = input[1 .. ^1].foldl(a + b.sf, input[0].sf)
   r.reduce
   r.magnitude
 
 func part2*(input: seq[string]): int =
   result = int.low
   for (i, n) in input[0 .. ^2].pairs:
-    result =
-      input[i + 1 .. ^1].foldl(max([a, (n.parse[0] + b.parse[0]).magnitude, (b.parse[0] + n.parse[0]).magnitude]), result)
+    result = input[i + 1 .. ^1].foldl(max([a, (n.sf + b.sf).magnitude, (b.sf + n.sf).magnitude]), result)
