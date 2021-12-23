@@ -94,7 +94,6 @@ func matches(e1: Edge, e2: Edge): Table[(Mapping, Delta), HashSet[Point3D]] =
   let
     (de1x, de1y, de1z) = e1.length3
     (de2x, de2y, de2z) = e2.length3
-  if de1x == 0 or de1y == 0 or de1z == 0: continue
   if de1x == de2x:
     if de1y == de2y and de1z == de2z: mapping = some((xTo: 'x', yTo: 'y', zTo: 'z'))
     elif de1y == de2z and de1z == de2y: mapping = some((xTo: 'x', yTo: 'z', zTo: 'y'))
