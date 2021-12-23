@@ -88,7 +88,7 @@ func delta(mapping: Mapping, edge: Edge, reference: Edge): Delta =
       mz = (if ez == rz: 1 else: -1)
       dz = ra.z - mz * ea.z
     else: discard
-  (mx: mx, my: my, mz: mz, dx: dx, dy: dy, dz: dz)
+  (mx, my, mz, dx, dy, dz)
 
 func matches(e1: Edge, edges2: seq[Edge]): Table[(Mapping, Delta), HashSet[Point3D]] =
   var t = initTable[(Mapping, Delta), HashSet[Point3D]]()
@@ -143,16 +143,7 @@ func offset(mapping: Mapping, delta: Delta, p: Point3D): Point3D =
     of 'y': y = nz
     of 'z': z = nz
     else: discard
-  (x: x, y: y, z: z)
-
-func `+`(sAcc: Scanner, s: Scanner): (Scanner, Option[(Mapping, Delta)]) =
-  if s.n.allIt(it in sAcc.n): return (sAcc, none[(Mapping, Delta)]())
-  let r = s.deltaRelativeTo sAcc
-  if r.isNone: return (sAcc, none[(Mapping, Delta)]())
-  let
-    (mapping, delta) = r.get
-    newData = (sAcc.data & s.data.mapIt(offset(mapping, delta, it))).deduplicate
-  (Scanner(data: newData, edges: newData.sortedEdges, n: (sAcc.n + s.n)), some((mapping, delta)))
+  (x, y, z)
 
 func toOffset(mapping: Mapping, delta: Delta): Point3D =
   let
@@ -174,7 +165,16 @@ func toOffset(mapping: Mapping, delta: Delta): Point3D =
     of 'y': y = dz
     of 'z': z = dz
     else: discard
-  (x: x, y: y, z: z)
+  (x, y, z)
+
+func `+`(sAcc: Scanner, s: Scanner): (Scanner, Option[Point3D]) =
+  if s.n.allIt(it in sAcc.n): return (sAcc, none[Point3D]())
+  let r = s.deltaRelativeTo sAcc
+  if r.isNone: return (sAcc, none[Point3D]())
+  let
+    (mapping, delta) = r.get
+    newData = (sAcc.data & s.data.mapIt(offset(mapping, delta, it))).deduplicate
+  (Scanner(data: newData, edges: newData.sortedEdges, n: (sAcc.n + s.n)), some(mapping.toOffset delta))
 
 func process(input: seq[string]): (Scanner, seq[Point3D]) =
   let scanners = input.splitByEmptyLines.mapIt(it.toData)
@@ -185,11 +185,10 @@ func process(input: seq[string]): (Scanner, seq[Point3D]) =
   while remaining.len > 0:
     let
       next = remaining.popFirst
-      (r, metadata) = combined + next
-    if metadata.isSome:
-      let (mapping, delta) = metadata.get
+      (r, offset) = combined + next
+    if offset.isSome:
       combined = r
-      offsets.add mapping.toOffset delta
+      offsets.add offset.get
     else:
       remaining.addLast next
   (combined, offsets)
@@ -200,7 +199,6 @@ func distance(p1: Point3D, p2: Point3D): int = abs(p1.x - p2.x) + abs(p1.y - p2.
 
 func part2*(input: seq[string]): int =
   let (_, offsets) = input.process
-  for d in offsets: debugEcho d
   result = 0
   for (i, offset) in offsets[0 .. ^2].pairs:
     result = offsets[i + 1 .. ^1].foldl(a.max offset.distance(b), result)
