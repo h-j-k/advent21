@@ -14,6 +14,11 @@ grid[(0, 2)].assertEquals 7
 grid[(1, 2)].assertEquals 8
 grid[(2, 2)].assertEquals 9
 
+((0, 0) - (1, 1)).assertEquals 2
+((0, 0) - (-1, 1)).assertEquals 2
+((-1, -1) - (0, 0)).assertEquals 2
+((1, -1) - (0, 0)).assertEquals 2
+
 (1, 1).adjacents(grid, false).assertEquals @[(1, 0), (0, 1), (2, 1), (1, 2)]
 
 (1, 1).adjacents(grid, true).assertEquals @[(0, 0), (1, 0), (2, 0), (0, 1), (2, 1), (0, 2), (1, 2), (2, 2)]
@@ -33,3 +38,8 @@ grid[(2, 2)].assertEquals 9
 @["", "this is", "", "", "some text", ""].splitByEmptyLines.assertEquals @[@["this is"], @["some text"]]
 
 @['a', 'b'].withIndex.assertEquals @[(0, 'a'), (1, 'b')]
+
+@[@['a', 'b'], @['d', 'c']][(x: 0, y: 0)].assertEquals 'a'
+@[@['a', 'b'], @['d', 'c']][(x: 1, y: 0)].assertEquals 'b'
+@[@['a', 'b'], @['d', 'c']][(x: 1, y: 1)].assertEquals 'c'
+@[@['a', 'b'], @['d', 'c']][(x: 0, y: 1)].assertEquals 'd'

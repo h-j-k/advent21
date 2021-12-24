@@ -4,9 +4,15 @@ import tables
 
 type IntGrid* = seq[seq[int]]
 
+type CharGrid* = seq[seq[char]]
+
 type Point* = tuple[x: int, y: int]
 
 func `[]`*(grid: IntGrid, p: Point): int = grid[p.y][p.x]
+
+func `[]`*(grid: CharGrid, p: Point): char = grid[p.y][p.x]
+
+func `-`*(a: Point, b: Point): int = abs(a.x - b.x) + abs(a.y - b.y)
 
 func `in`(p: Point, grid: IntGrid): bool = p.x in 0 ..< grid[0].len and p.y in 0 ..< grid.len
 
