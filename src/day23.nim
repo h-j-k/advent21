@@ -83,11 +83,7 @@ func part1*(input: CharGrid): int = input.process(@[2])
 
 func part2*(input: CharGrid): int =
   @[
-    input[0],
-    input[1],
-    input[2],
-    "  #D#C#B#A#  ".items.toSeq,
-    "  #D#B#A#C#  ".items.toSeq,
-    input[3],
-    input[4]
-  ].process(@[2, 3, 4])
+    input[0 .. 2],
+    @["  #D#C#B#A#  ", "  #D#B#A#C#  "].mapIt(it.items.toSeq),
+    input[^2 .. ^1]
+  ].foldl(a & b, newSeq[seq[char]]()).process(@[2, 3, 4])
