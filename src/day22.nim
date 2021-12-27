@@ -1,8 +1,5 @@
 import sequtils
-import sets
 import strscans
-
-type Point3D = tuple[x: int, y: int, z: int]
 
 type Cube = tuple[x1: int, x2: int, y1: int, y2: int, z1: int, z2: int]
 
@@ -51,24 +48,11 @@ func process(steps: seq[Step], crop: Cube): int64 =
     let
       (isOn, cube) = step
       cropped = if crop.isEmpty: cube else: cube.crop(crop)
+    if cropped.isEmpty: continue
     var boxes = acc.mapIt(it - cropped)
     if isOn: acc = boxes & Box(cube: cube, toMinus: newSeq[Box]()) else: acc = boxes
   acc.foldl(a + b.volume, 0'i64)
 
-func part1*(input: seq[string]): int =
-  let limit = -50 .. 51
-  var set = initHashSet[Point3D]()
-  for step in input.mapIt(it.parse):
-    let
-      (isOn, cube) = step
-      (xMin, xMax, yMin, yMax, zMin, zMax) = cube
-    if [xMin, xMax, yMin, yMax, zMin, zMax].anyIt(it notin limit): continue
-    for x in xMin ..< xMax:
-        for y in yMin ..< yMax:
-          for z in zMin ..< zMax:
-            let p = (x: x, y: y, z: z)
-            if isOn: set.incl p else: set.excl p
-  set.len
+func part1*(input: seq[string]): int64 = input.mapIt(it.parse).process (-50, 51, -50, 51, -50, 51)
 
-func part2*(input: seq[string]): int64 =
-  input.mapIt(it.parse).process (0, 0, 0, 0, 0, 0)
+func part2*(input: seq[string]): int64 = input.mapIt(it.parse).process (0, 0, 0, 0, 0, 0)
