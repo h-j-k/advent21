@@ -1,11 +1,10 @@
 import adventutils
 import sequtils
 
-func process(window: int, values: seq[int]): int =
-  values.withIndex
-      .filterIt(it[0] > (window - 1))
-      .foldl((prev: values[b[0] - (window - 1)], count: a.count + (if b[1] > a.prev: 1 else: 0)), (prev: values[0], count: 0)).count
+func process(input: seq[int], window: int): int =
+  input.withIndex.filterIt(it[0] > (window - 1))
+      .foldl((input[b[0] - (window - 1)], a[1] + (if b[1] > a[0]: 1 else: 0)), (input[0], 0))[1]
 
-func part1*(values: seq[int]): int = process 1, values
+func part1*(input: seq[int]): int = input.process 1
 
-func part2*(values: seq[int]): int = process 3, values
+func part2*(input: seq[int]): int = input.process 3

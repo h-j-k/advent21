@@ -21,7 +21,7 @@ func part1*(input: seq[string]): int =
     scores = initCountTable[int]()
     rounds = 0
     lastRoll = 0
-  for (i, pair) in players.pairs: positions[i] = pair[1]
+  for i, pair in players: positions[i] = pair[1]
   while scores.values.toSeq.allIt(it < 1000):
     let
       player = rounds mod players.len

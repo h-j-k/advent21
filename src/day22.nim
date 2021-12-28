@@ -1,7 +1,7 @@
 import sequtils
 import strscans
 
-type Cube = tuple[x1: int, x2: int, y1: int, y2: int, z1: int, z2: int]
+type Cube = tuple[x1, x2, y1, y2, z1, z2: int]
 
 type Step = tuple[isOn: bool, cube: Cube]
 
@@ -10,10 +10,8 @@ type Box = ref object
   toMinus: seq[Box]
 
 func parse(step: string): Step =
-  let
-    (_, mode, xMin, xMax, yMin, yMax, zMin, zMax) = step.scanTuple "$w x=$i..$i,y=$i..$i,z=$i..$i"
-    cube = (x1: xMin, x2: xMax + 1, y1: yMin, y2: yMax + 1, z1: zMin, z2: zMax + 1)
-  (mode == "on", cube)
+  let (_, mode, x1, x2, y1, y2, z1, z2) = step.scanTuple "$w x=$i..$i,y=$i..$i,z=$i..$i"
+  (mode == "on", (x1, x2 + 1, y1, y2 + 1, z1, z2 + 1))
 
 func crop(a1: int, a2: int, b1: int, b2: int): (int, int) =
   return if a2 <= b1 or a1 >= b2: (0, 0) else: (max(a1, b1), min(a2, b2))

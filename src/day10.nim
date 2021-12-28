@@ -8,7 +8,7 @@ import tables
 func process(line: string): (Option[char], Option[string]) =
   let pairs = { '(': ')', '[': ']', '{': '}', '<': '>'}.toTable
   var deque = initDeque[char]()
-  for c in line.items:
+  for c in line:
     if pairs.hasKey(c): deque.addFirst(c) else:
       if deque.len == 0 or deque.peekFirst != pairs.keyFor(c):
         return (some(c), none[string]())

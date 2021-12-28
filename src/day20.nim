@@ -11,8 +11,8 @@ type ImageGrid = ref object
 func gridAndRules(input: seq[string]): (ImageGrid, seq[bool]) =
   let rules = input[0].mapIt(it == '#')
   var grid = ImageGrid(bounds: 0 .. 99)
-  for (y, line) in input[2 .. ^1].pairs:
-    for (x, c) in line.pairs: (if c == '#': grid.data.incl (x, y))
+  for y, line in input[2 .. ^1]:
+    for x, c in line: (if c == '#': grid.data.incl (x, y))
   (grid, rules)
 
 func aroundAndIt(p: Point): seq[Point] = collect:

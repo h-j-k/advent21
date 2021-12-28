@@ -3,9 +3,9 @@ import strutils
 
 type Instruction = tuple[direction: string, offset: int]
 
-type Coordinate = tuple[x: int, y: int]
+type Coordinate = tuple[x, y: int]
 
-type CoordinateAim = tuple[x: int, y: int, aim: int]
+type CoordinateAim = tuple[x, y, aim: int]
 
 func toInstruction(instruction: string): Instruction =
   let values = instruction.splitWhitespace

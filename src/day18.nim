@@ -65,11 +65,9 @@ func split(sf: SfNumber): bool =
       if result: sf.b = bSplit.get
     else: result = split(sf.b)
 
-func reduce(sf: SfNumber): void = (while (sf.explode.isSome or sf.split): discard)
-
 func `+`(a: SfNumber, b: SfNumber): SfNumber =
   result = SfNumber(a: a, b: b)
-  result.reduce
+  while (result.explode.isSome or result.split): discard
 
 func parse(input: string): (SfNumber, int) =
   if input =~ re"^(\d+)":
@@ -83,12 +81,9 @@ func parse(input: string): (SfNumber, int) =
 
 func sf(number: string): SfNumber = number.parse[0]
 
-func part1*(input: seq[string]): int =
-  let r = input[1 .. ^1].foldl(a + b.sf, input[0].sf)
-  r.reduce
-  r.magnitude
+func part1*(input: seq[string]): int = input[1 .. ^1].foldl(a + b.sf, input[0].sf).magnitude
 
 func part2*(input: seq[string]): int =
   result = int.low
-  for (i, n) in input[0 .. ^2].pairs:
+  for i, n in input[0 .. ^2]:
     result = input[i + 1 .. ^1].foldl(max([a, (n.sf + b.sf).magnitude, (b.sf + n.sf).magnitude]), result)

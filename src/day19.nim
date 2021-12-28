@@ -6,9 +6,9 @@ import std/[deques, options, sets]
 import strscans
 import tables
 
-type Point3D = tuple[x: int, y: int, z: int]
+type Point3D = tuple[x, y, z: int]
 
-type Edge = tuple[a: Point3D, b: Point3D]
+type Edge = tuple[a, b: Point3D]
 
 type Scanner = ref object
   data: seq[Point3D]
@@ -16,9 +16,9 @@ type Scanner = ref object
   n: HashSet[int]
   x, y, z: int
 
-type Mapping = tuple[xTo: char, yTo: char, zTo: char]
+type Mapping = tuple[xTo, yTo, zTo: char]
 
-type Delta = tuple[mx: int, my: int, mz: int, dx: int, dy: int, dz: int]
+type Delta = tuple[mx, my, mz, dx, dy, dz: int]
 
 func length3(edge: Edge): (int, int, int) =
   let (a, b) = edge
@@ -30,7 +30,7 @@ func length(edge: Edge): int =
 
 func toEdges(data: seq[Point3D]): seq[Edge] =
   var set = initHashSet[Edge]()
-  for (i, d) in data[0 .. ^2].pairs:
+  for i, d in data[0 .. ^2]:
     set = set + data[i + 1 .. ^1]
       .filterIt(abs(it.x - d.x) <= 1000 and abs(it.y - d.y) <= 1000 and abs(it.z - d.z) <= 1000)
       .foldl(a + [(a: d, b: b)].toHashSet, initHashSet[Edge]())
@@ -111,7 +111,7 @@ func deltaRelativeTo(s1: Scanner, s2: Scanner): Option[(Mapping, Delta)] =
   var mappings = initTable[(Mapping, Delta), HashSet[Point3D]]()
   for e1 in s1.edges:
     for e2 in s2.edges:
-      for (k, v) in e1.matches(e2).pairs:
+      for k, v in e1.matches(e2):
         mappings[k] = mappings.getOrDefault(k, initHashSet[Point3D]()) + v
   let candidates = mappings.pairs.toSeq.filterIt(it[1].len > 2).sortedByIt(-1 * it[1].len)
   return if candidates.len > 0: some(candidates[0][0]) else: none[(Mapping, Delta)]()
@@ -191,5 +191,5 @@ func part1*(input: seq[string]): int = input.process[0].data.len
 func part2*(input: seq[string]): int =
   let (_, offsets) = input.process
   result = 0
-  for (i, offset) in offsets[0 .. ^2].pairs:
+  for i, offset in offsets[0 .. ^2]:
     result = offsets[i + 1 .. ^1].foldl(a.max (offset, b).length, result)
