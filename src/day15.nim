@@ -13,8 +13,9 @@ func process(grid: IntGrid): int =
     seen = initCountTable[Point]()
   while heapQueue.len > 0:
     let (p, r) = heapQueue.pop
-    if p == target: return r else:
-      for a in p.adjacents(grid, false).filter(a => r + grid[a] < seen.getOrDefault(a, int.high)):
+    if p == target: return r
+    for a in p.adjacents(grid, false):
+      if r + grid[a] < seen.getOrDefault(a, int.high):
         seen[a] = r + grid[a]
         heapQueue.push (a, seen[a])
 
