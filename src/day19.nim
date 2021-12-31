@@ -14,7 +14,6 @@ type Scanner = ref object
   data: seq[Point3D]
   edges: seq[Edge]
   n: HashSet[int]
-  x, y, z: int
 
 type Mapping = tuple[xTo, yTo, zTo: char]
 
@@ -28,13 +27,14 @@ func length(edge: Edge): int =
   let (dx, dy, dz) = edge.length3
   dx + dy + dz
 
+func isWithin(edge: Edge): bool =
+  let (dx, dy, dz) = edge.length3
+  dx <= 1000 and dy <= 1000 and dz <= 1000
+
 func toEdges(data: seq[Point3D]): seq[Edge] =
-  var set = initHashSet[Edge]()
   for i, d in data[0 .. ^2]:
-    set = set + data[i + 1 .. ^1]
-      .filterIt(abs(it.x - d.x) <= 1000 and abs(it.y - d.y) <= 1000 and abs(it.z - d.z) <= 1000)
-      .foldl(a + [(a: d, b: b)].toHashSet, initHashSet[Edge]())
-  set.toSeq
+    result = result.concat data[i + 1 .. ^1]
+      .filterIt((it, d).isWithin).foldl(a & @[(a: d, b: b)], newSeq[Edge]())
 
 func toData(data: string): Point3D =
   let (_, x, y, z) = data.scanTuple("$i,$i,$i")
@@ -89,7 +89,7 @@ func delta(mapping: Mapping, edge: Edge, reference: Edge): Delta =
     else: discard
   (mx, my, mz, dx, dy, dz)
 
-func matches(e1: Edge, e2: Edge): Table[(Mapping, Delta), HashSet[Point3D]] =
+func matches(e1, e2: Edge): Table[(Mapping, Delta), HashSet[Point3D]] =
   var mapping = none[Mapping]()
   let
     (de1x, de1y, de1z) = e1.length3
@@ -107,7 +107,7 @@ func matches(e1: Edge, e2: Edge): Table[(Mapping, Delta), HashSet[Point3D]] =
     let k = (mapping.get, delta(mapping.get, e1, e2))
     result[k] = (result.getOrDefault(k, initHashSet[Point3D]()) + [e1.a, e1.b].toHashSet)
 
-func deltaRelativeTo(s1: Scanner, s2: Scanner): Option[(Mapping, Delta)] =
+func deltaRelativeTo(s1, s2: Scanner): Option[(Mapping, Delta)] =
   var mappings = initTable[(Mapping, Delta), HashSet[Point3D]]()
   for e1 in s1.edges:
     for e2 in s2.edges:
@@ -163,7 +163,7 @@ func toOffset(mapping: Mapping, delta: Delta): Point3D =
     else: discard
   (x, y, z)
 
-func `+`(sAcc: Scanner, s: Scanner): (Scanner, Option[Point3D]) =
+func `+`(sAcc, s: Scanner): (Scanner, Option[Point3D]) =
   if s.n.allIt(it in sAcc.n): return (sAcc, none[Point3D]())
   let r = s.deltaRelativeTo sAcc
   if r.isNone: return (sAcc, none[Point3D]())
