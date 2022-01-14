@@ -34,7 +34,7 @@ In pseudocode, it can be something like:
 
     function add(a: SfNumber, b: SfNumber): SfNumber {
         result = SfNumber(a, b)
-        while (result.canExplode or resultcanSplit) {
+        while (result.canExplode or result.canSplit) {
             // loop until terminating condition
         }
     }
